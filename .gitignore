@@ -383,3 +383,4 @@ docker-compose.yml
 # Metals VS Code Extension
 .metals
 .scala-build
+conf/gitlab.env
