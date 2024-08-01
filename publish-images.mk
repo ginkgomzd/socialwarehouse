@@ -7,30 +7,33 @@ include conf/gitlab.env
 # CI_REGISTRY_PASSWORD
 #
 # USE THE SOURCE, LUKE!
-# see docker/publish.mk
+# see docker/container-registry.mk
 #
-
-# DO NOT INCLUDE --build-arg flag, just key-value pairs
-BUILD_ARGS ?= UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} PYTHON_VENV_PATH=${PYTHON_VENV_PATH}
-
-UBUNTU_BASE_IMAGE ?= ubuntu:20.04
-PYTHON_VENV_PATH ?= /opt/venv
-IMAGE_NAME ?= fec-intelligence/swh-spark-py-gdal
 
 #
 # To disable publish and just build, set PUBLISH_IMAGE=false
 #
 PUBLISH_IMAGE ?= true
 ifneq ($(PUBLISH_IMAGE),true)
-	TARGET = build
+	TARGET = tag
 else
 	TARGET = publish
 endif
 
-PUBLISH_IMAGE_CMD = $(MAKE) -f conf/gitlab.env -f docker/publish.mk ${TARGET}
+PUBLISH_IMAGE_CMD = $(MAKE) -f conf/gitlab.env -f docker/container-registry.mk ${TARGET}
 
-spark:
+swh-spark-py-gdal:
+	$(eval UBUNTU_BASE_IMAGE ?= ubuntu:20.04)
+	$(eval PYTHON_VENV_PATH ?= /opt/venv)
+	$(eval BUILD_ARGS ?= UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} PYTHON_VENV_PATH=${PYTHON_VENV_PATH})
 	BUILD_IMAGE_DIR=docker/spark \
-		IMAGE_NAME=${IMAGE_NAME} \
+		NO_CACHE=1 \
+		IMAGE_NAME=$@ \
 		BUILD_ARGS='${BUILD_ARGS}' \
+		${PUBLISH_IMAGE_CMD}
+
+swh-zeppelin:
+	BUILD_IMAGE_DIR=docker/zeppelin \
+		IMAGE_NAME=$@ \
+		BUILD_ARGS='SPARK_BASE_IMAGE=${CI_REGISTRY}/swh-spark-py-gdal' \
 		${PUBLISH_IMAGE_CMD}
