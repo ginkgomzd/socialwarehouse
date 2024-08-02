@@ -3,7 +3,7 @@ ARG UBUNTU_BASE_IMAGE
 FROM ${UBUNTU_BASE_IMAGE}
 
 ARG PYTHON_VENV_PATH
-ARG DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install the basics
 RUN apt-get update && apt-get install -y tzdata
