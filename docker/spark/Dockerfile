@@ -1,5 +1,6 @@
+ARG SPARK_BASE_IMAGE=spark:3.4.1-scala2.12-java11-python3-r-ubuntu
 
-FROM spark:python3-java17
+FROM ${SPARK_BASE_IMAGE}
 
 ARG PYTHON_VENV_PATH=/opt/venv
 ENV PYTHON_VENV_PATH=${PYTHON_VENV_PATH}
@@ -15,6 +16,8 @@ RUN apt-get install -y --install-recommends \
         gdal-bin \
         libgdal-dev  \
         python3-venv \
+        zip \
+        wget\
      && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -24,17 +27,18 @@ RUN apt-get install -y --install-recommends \
 #
 
 RUN python3 -m venv $PYTHON_VENV_PATH
-ENV PATH="$PYTHON_VENV_PATH/bin:$PATH"
+RUN PATH="$PYTHON_VENV_PATH/bin:$PATH"
 
 # Install GDAL
 RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
 RUN export C_INCLUDE_PATH=/usr/include/gdal
-RUN pip3 install --upgrade pip
-RUN pip install GDAL=="$(gdal-config --version).*"
+
+RUN pip install --upgrade pip
+
+RUN pip install numpy GDAL=="$(gdal-config --version).*"
 
 COPY spark_requirements.txt .
-RUN pip3 install --upgrade pip
-RUN pip3 install -r spark_requirements.txt
+RUN pip install -r spark_requirements.txt
 
 # Copy the default configurations into
 COPY spark-master-defaults.properties "$SPARK_HOME/conf/spark-defaults.conf"
@@ -44,10 +48,7 @@ RUN chmod u+x /opt/spark/sbin/* && \
 
 ENV PYTHONPATH=$SPARK_HOME/python:$PYTHONPATH
 
-# Copy appropriate entrpoint
-COPY spark_entrypoint.sh /opt/entrypoint.sh
-
 USER spark
 WORKDIR /opt/spark/work-dir
 
-ENTRYPOINT ["/opt/entrypoint.sh"]
+ENTRYPOINT ["/opt/spark/sbin/start-master.sh"]

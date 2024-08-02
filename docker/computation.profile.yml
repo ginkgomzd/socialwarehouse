@@ -12,12 +12,18 @@ services:
     restart: always
 
   zeppelin:
+    image: ${CI_REGISTRY}/swh-zeppelin
     depends_on:
-      - postgis
-    image: apache/zeppelin:0.10.1
-    ports:
-      - 8082:8080
-    restart: always
+      - spark-gateway
     environment:
       - ZEPPELIN_IN_DOCKER=true
+      - ZEPPELIN_SERVER_HOST=zeppelin
+      - ZEPPELIN_NOTEBOOK_DIR='/notebooks'
+      - SPARK_MASTER=spark://spark-gateway:7077
+    ports:
+      - 9027:8080
+    volumes:
+      - ./notebooks:/notebooks
+      - ./sql:/sql
+      - ./spark/logs:/opt/spark/spark-events
 

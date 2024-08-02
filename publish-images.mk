@@ -27,7 +27,6 @@ swh-spark-py-gdal:
 	$(eval PYTHON_VENV_PATH ?= /opt/venv)
 	$(eval BUILD_ARGS ?= UBUNTU_BASE_IMAGE=${UBUNTU_BASE_IMAGE} PYTHON_VENV_PATH=${PYTHON_VENV_PATH})
 	BUILD_IMAGE_DIR=docker/spark \
-		NO_CACHE=1 \
 		IMAGE_NAME=$@ \
 		BUILD_ARGS='${BUILD_ARGS}' \
 		${PUBLISH_IMAGE_CMD}
@@ -35,5 +34,5 @@ swh-spark-py-gdal:
 swh-zeppelin:
 	BUILD_IMAGE_DIR=docker/zeppelin \
 		IMAGE_NAME=$@ \
-		BUILD_ARGS='SPARK_BASE_IMAGE=${CI_REGISTRY}/swh-spark-py-gdal' \
+		BUILD_ARGS='SPARK_BASE_IMAGE=spark:3.4.1-scala2.12-java11-python3-r-ubuntu' \
 		${PUBLISH_IMAGE_CMD}

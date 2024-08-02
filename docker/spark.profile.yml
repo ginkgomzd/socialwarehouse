@@ -2,9 +2,9 @@ version: '3.8'
 
 services:
 
-  spark-master:
-    image: swh-spark-image
-    entrypoint: ['spark_entrypoint.sh', 'master']
+  spark-gateway:
+    image: ${CI_REGISTRY}/swh-spark-py-gdal
+    entrypoint: ['/opt/spark/sbin/start-master.sh']
     environment:
       - SPARK_NO_DAEMONIZE=false
     healthcheck:
@@ -12,15 +12,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
-    ports:
-      - '4040:4040'
-      - '7077:7077'
-      - '9090:8080'
-      - '51810:51810'
-      - '51811:51811'
-      - '51812:51812'
-      - '51813:51813'
-      - '51814:51814'
+    # ports:
+    #   - '4040:4040'
+    #   - '7077:7077'
+    #   - '9090:8080'
+    #   - '51810:51810'
+    #   - '51811:51811'
+    #   - '51812:51812'
+    #   - '51813:51813'
+    #   - '51814:51814'
     volumes:
       - ./var/log/spark:/opt/spark/spark-events
       - ./code:/opt/spark/code
@@ -28,27 +28,27 @@ services:
 
   spark-history:
     depends_on:
-      - spark-master
-    image: swh-spark-image
-    entrypoint: ['spark_entrypoint.sh', 'history']
+      - spark-gateway
+    image: ${CI_REGISTRY}/swh-spark-py-gdal
+    entrypoint: ['/opt/spark/sbin/start-history-server.sh']
     environment:
       - SPARK_NO_DAEMONIZE
     volumes:
       - ./docker/spark/spark-master-defaults.properties:/opt/spark/conf/spark-defaults.conf
       - ./var/log/spark:/opt/spark/spark-events
-    ports:
-     - '18080:18080'
+    # ports:
+    #  - '18080:18080'
 
   spark-worker:
     depends_on:
-      - spark-master
-    image: swh-spark-image
-    entrypoint: ['spark_entrypoint.sh', 'worker']
+      - spark-gateway
+    image: ${CI_REGISTRY}/swh-spark-py-gdal
+    entrypoint: ['/opt/spark/sbin/start-worker.sh', 'spark://spark-gateway:7077']
     environment:
       - SPARK_NO_DAEMONIZE
-    ports:
-     - '9091:8081'
-     - '51815:51815'
+    # ports:
+    #  - '9091:8081'
+    #  - '51815:51815'
     volumes:
       - ./docker/spark/spark-worker-defaults.properties:/opt/spark/conf/spark-defaults.conf
       - ./var/log/spark:/opt/spark/spark-events
