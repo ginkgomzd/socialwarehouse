@@ -1,14 +1,10 @@
-# import CI_REGISTRY from conf/gitlab.env
-include conf/gitlab.env
+# optionally import CI_REGISTRY, etc.
+-include conf/gitlab.env
 
-# **REQUIRED ENVIRONMENT VARIABLES**
-# CI_REGISTRY
-# CI_REGISTRY_USER
-# CI_REGISTRY_PASSWORD
-#
-# USE THE SOURCE, LUKE!
-# see docker/container-registry.mk
-#
+# **ENVIRONMENT VARIABLES REQUIRED by container-registry.mk**
+export CI_REGISTRY
+export CI_REGISTRY_USER
+export CI_REGISTRY_PASSWORD
 
 #
 # To disable publish and just build, set PUBLISH_IMAGE=false
@@ -22,7 +18,10 @@ endif
 
 export NO_CACHE
 
-PUBLISH_IMAGE_CMD = $(MAKE) -f conf/gitlab.env -f docker/container-registry.mk ${TARGET}
+#
+# USE THE SOURCE, LUKE!
+# see docker/container-registry.mk
+PUBLISH_IMAGE_CMD = $(MAKE) -f docker/container-registry.mk ${TARGET}
 
 swh-spark-py-gdal:
 	$(eval UBUNTU_BASE_IMAGE ?= ubuntu:20.04)
