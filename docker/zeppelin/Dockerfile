@@ -1,7 +1,8 @@
 ARG SPARK_BASE_IMAGE=spark:3.4.1-scala2.12-java11
+ARG ZEPPELIN_BASE_IMAGE=apache/zeppelin:0.11.2
+
 FROM ${SPARK_BASE_IMAGE} as spark
 
-ARG ZEPPELIN_BASE_IMAGE=apache/zeppelin:0.11.2
 FROM ${ZEPPELIN_BASE_IMAGE}
 
 USER root

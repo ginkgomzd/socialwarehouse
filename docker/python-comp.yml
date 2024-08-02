@@ -1,8 +1,8 @@
 
 services:
 
-  python-computation:
-    image: swh-python-image
+  py-comp:
+    image: ${CI_REGISTRY}/swh-pycomp
     build:
       args:
         - UBUNTU_BASE_IMAGE
