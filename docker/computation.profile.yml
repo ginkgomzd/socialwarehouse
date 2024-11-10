@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  python-computation:
+  py-comp:
     volumes:
       - .:/opt/social_warehouse/
     depends_on:
